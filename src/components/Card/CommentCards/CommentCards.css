@@ -1,0 +1,40 @@
+.comment-card {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  /* justify-content: space-around;
+  align-items: baseline; */
+  /* width: 80%; */
+  /* margin: 3% auto; */
+  margin-bottom: 3%;
+
+  background-color: rgb(223, 223, 223);
+  /* opacity: 0.7; */
+  /* margin: 5% auto; */
+}
+
+.comment-text {
+  margin: 0;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.meta-data {
+  display: flex;
+}
+.meta-data p {
+  display: flex;
+  margin-left: auto;
+  margin-right: 2%;
+}
+
+/* 
+.meta-data {
+  display: flex;
+  align-items: center;
+  
+} */
+
+.comment-card h4 {
+  color: blue;
+}
