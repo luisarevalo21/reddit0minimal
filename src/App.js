@@ -15,6 +15,8 @@ function App() {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [selectedSubreddit, setSelectedSubreddit] = useState("");
 
+  const [error, setError] = useState(null);
+
   const [searchValue, setSearchValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   //useffect fetch both subreddits and home page
@@ -22,69 +24,60 @@ function App() {
   ///fetches subredit content
   useEffect(() => {
     const fetchSubreddits = async () => {
-      const response = await fetch(baseURL + "/subreddits/.json");
-      setIsLoading(true);
-      const data = await response.json();
+      try {
+        const response = await fetch(baseURL + "/subreddits/.json");
+        setIsLoading(true);
+        const data = await response.json();
 
-      const subreddits = data.data.children.map(subreddit => ({
-        title: subreddit.data.title,
-        avatar: subreddit.data.header_img,
-        url: subreddit.data.url,
-      }));
+        const subreddits = data.data.children.map(subreddit => ({
+          title: subreddit.data.title,
+          avatar: subreddit.data.header_img,
+          url: subreddit.data.url,
+        }));
 
-      setIsLoading(false);
-      setSubreddits(subreddits);
+        setIsLoading(false);
+        setSubreddits(subreddits);
+      } catch (error) {
+        setIsLoading(false);
+        setRedditHome([]);
+        setError({ title: error.message });
+      }
     };
-
-    // const fetchHomeContent = async () => {
-    //   // console.log("fetching");
-    //   setIsLoading(true);
-    //   const response = await fetch(`${baseURL}/r/popular/.json`);
-    //   if (response) {
-    //     const data = await response.json();
-
-    //     // console.log(data.data.children);
-    //     const filtereData = data.data.children.map(element => ({
-    //       author: element.data.author,
-    //       title: element.data.title,
-    //       ups: element.data.ups,
-    //       url_overridden_by_dest: element.data["url_overridden_by_dest"],
-    //       created_utc: element.data["created_utc"],
-    //     }));
-    //     setIsLoading(false);
-    //     setRedditHome(filtereData);
-    //   }
-    // };
-
     fetchHomeContent();
     fetchSubreddits();
   }, []);
 
   const fetchHomeContent = async () => {
-    console.log("fetching");
     setFilteredHomeData(null);
     setIsLoading(true);
-    const response = await fetch(`${baseURL}/r/popular/.json`);
-    if (response) {
-      const data = await response.json();
 
-      console.log(data);
+    try {
+      const response = await fetch(`${baseURL}/r/popular/.json`);
+      if (response.ok) {
+        const data = await response.json();
 
-      console.log(data.data.children);
-      const filtereData = data.data.children.map(element => ({
-        author: element.data.author,
-        title: element.data.title,
-        ups: element.data.ups,
-        url_overridden_by_dest: element.data["url_overridden_by_dest"],
-        created_utc: element.data["created_utc"],
-        permaLink: element.data.permalink,
-        totalComments: element.data["num_comments"],
-      }));
+        const filtereData = data.data.children.map(element => ({
+          author: element.data.author,
+          title: element.data.title,
+          ups: element.data.ups,
+          url_overridden_by_dest: element.data["url_overridden_by_dest"],
+          created_utc: element.data["created_utc"],
+          permaLink: element.data.permalink,
+          totalComments: element.data["num_comments"],
+        }));
+        setIsLoading(false);
+        setRedditHome(filtereData);
+      }
+    } catch (error) {
       setIsLoading(false);
-      setRedditHome(filtereData);
+      setRedditHome([]);
+      setError({ title: error.message });
     }
   };
 
+  const handleError = () => {
+    fetchHomeContent();
+  };
   const handleSearchValue = searchValue => {
     setSearchValue(searchValue);
   };
@@ -100,25 +93,38 @@ function App() {
     const filteredData = redditHome.filter(post =>
       post.title.toLowerCase().includes(searchValue.toLocaleLowerCase())
     );
-    console.log(filteredData);
 
+    if (filteredData.length === 0) {
+      setError({ title: `No posts matching "${searchValue}"` });
+    }
     setFilteredHomeData(filteredData);
   };
 
   const handleClick = async url => {
     setIsLoading(true);
-
     setSelectedSubreddit(url);
-    const response = await fetch(baseURL + url + ".json");
-    const data = await response.json();
+    setRedditHome([]);
 
-    const filteredData = data.data.children.map(element => ({
-      ...element.data,
-    }));
+    try {
+      const response = await fetch(baseURL + url + ".json");
+      const data = await response.json();
 
-    // console.log("THE DATA IS ", filteredData);
-    setIsLoading(false);
-    setRedditHome(filteredData);
+      const filteredData = data.data.children.map(element => ({
+        author: element.data.author,
+        title: element.data.title,
+        ups: element.data.ups,
+        url_overridden_by_dest: element.data["url_overridden_by_dest"],
+        created_utc: element.data["created_utc"],
+        permaLink: element.data.permalink,
+        totalComments: element.data["num_comments"],
+      }));
+      setIsLoading(false);
+      setRedditHome(filteredData);
+    } catch (error) {
+      setIsLoading(false);
+      setRedditHome([]);
+      setError(error);
+    }
   };
 
   const fetchComments = async permaLink => {
@@ -126,28 +132,33 @@ function App() {
 
     setSelectedPermaLink(permaLink);
 
-    const response = await fetch(`https://www.reddit.com${permaLink}/.json`);
-    console.log("RESPONSE IS", response);
-    if (response.ok) {
-      const data = await response.json();
+    try {
+      const response = await fetch(`https://www.reddit.com${permaLink}/.json`);
 
-      // console.log(data[1].data.children[0]);
+      if (response.ok) {
+        const data = await response.json();
 
-      const comments = data[1].data.children.map(comment => ({
-        author: comment.data.author,
-        text: comment.data.body,
-        timestamp: moment.unix(comment.data.created_utc).fromNow(),
-      }));
+        const comments = data[1].data.children.map(comment => ({
+          author: comment.data.author,
+          text: comment.data.body,
+          timestamp: moment.unix(comment.data.created_utc).fromNow(),
+        }));
 
-      comments.permaLink = permaLink;
-      // const comments = data[1].children.map(comment => ({
-      //   author: comment.data.author,
-      //   // text: comment.data.body,
-      //   // timestamp: moment.unix(comment.created_utc).fromNow(),
-      // }));
-      // console.log("comments are", comments);
-      setComments(comments);
+        comments.permaLink = permaLink;
+        // const comments = data[1].children.map(comment => ({
+        //   author: comment.data.author,
+        //   // text: comment.data.body,
+        //   // timestamp: moment.unix(comment.created_utc).fromNow(),
+        // }));
+
+        setComments(comments);
+        setIsLoadingComments(false);
+      }
+    } catch (error) {
       setIsLoadingComments(false);
+
+      setRedditHome([]);
+      setError(error);
     }
   };
 
@@ -158,6 +169,7 @@ function App() {
         handleChange={handleSearchValue}
         handleSearch={handleSearch}
       />
+
       <Home
         redditHome={redditHome}
         filteredHomeData={filteredHomeData}
@@ -168,8 +180,12 @@ function App() {
         selectedPermaLink={selectedPermaLink}
         searchValue={searchValue}
         handleNoResults={fetchHomeContent}
+        error={error}
+        handleError={handleError}
       />
       <Sidebar
+        error={error}
+        handleError={handleError}
         handleClick={handleClick}
         subreddits={subreddits}
         isLoading={isLoading}

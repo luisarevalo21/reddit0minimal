@@ -3,18 +3,12 @@ import "./SideCards.css";
 const SideCards = props => {
   const { url, title, avatar, selectedSubreddit } = props;
 
-  let selected = "";
-
-  // console.log(url);
-  // console.log(avatar);
   const handleClick = () => {
     props.handleClick(url);
-
-    console.log("button pressed");
   };
 
   return (
-    <li className="list">
+    <li className="list" key={props.subreddit}>
       <button
         className={`SideCards ${url === selectedSubreddit ? "active" : ""} `}
         onClick={handleClick}

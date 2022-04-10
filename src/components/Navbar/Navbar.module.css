@@ -51,3 +51,10 @@
 .span-min {
   color: blue;
 }
+
+@media (max-width: 500px) {
+  .header {
+    display: flex;
+    flex-direction: column;
+  }
+}

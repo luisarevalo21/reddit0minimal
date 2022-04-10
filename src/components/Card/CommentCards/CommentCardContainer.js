@@ -11,6 +11,7 @@ const CommentCardContainer = props => {
   // console.log(comments);
   const commentContainer = comments.map(comment => (
     <CommentCards
+      key={Math.random()}
       author={comment.author}
       text={comment.text}
       timestamp={comment.timestamp}

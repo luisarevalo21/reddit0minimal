@@ -26,7 +26,6 @@ const Card = props => {
     setDownVoteColor("");
   };
   const handleDownVote = () => {
-    console.log("pressed");
     setDownVoteColor(downVoteColor === "" ? "down-vote" : "");
     setUpVoteColor("");
   };
@@ -37,48 +36,45 @@ const Card = props => {
 
   let commentsRender = null;
 
-  // console.log("PERMA LINK", permaLink);
-  // console.log("SELECTED LINK", selectedPermaLink);
   if (isLoadingComments && selectedPermaLink === permaLink) {
     commentsRender = <Spinner isLoading={isLoadingComments} />;
   } else if (selectedPermaLink === permaLink) {
-    console.log(permaLink);
     commentsRender = <CommentCardContainer comments={comments} />;
   }
-  // console.log(commentsRender);
 
-  // console.log(commentsRender);
   return (
-    <div className="Card">
-      <div className="votes">
-        <button onClick={handleUpVote} className={upVoteColor}>
-          <i class="fa-solid fa-arrow-up"></i>
-        </button>
-        <p className={[upVoteColor, downVoteColor].join("")}>{formatedUps}</p>
-        <button className={downVoteColor} onClick={handleDownVote}>
-          <i className="fa-solid fa-arrow-down"></i>
-        </button>
-      </div>
-      <div className="card-wrapper">
-        <div className="card-content">
-          <h3>{props.title}</h3>
-          <div className="image-container">
-            <img alt="" src={props.url_overridden_by_dest} />
-          </div>
-          <div className="card-footer">
-            <p>{props.author}</p>
-            <p>{moment.unix(props.created_utc).fromNow()}</p>
-            <span className="icon">
-              <button onClick={handleFetchComments}>
-                <i className="fa-solid fa-comment"></i>
-                <p className="comments">{props.totalComments}</p>
-              </button>
-            </span>
-          </div>
+    <React.Fragment key={Math.random()}>
+      <div className="Card">
+        <div className="votes">
+          <button onClick={handleUpVote} className={upVoteColor}>
+            <i className="fa-solid fa-arrow-up"></i>
+          </button>
+          <p className={[upVoteColor, downVoteColor].join("")}>{formatedUps}</p>
+          <button className={downVoteColor} onClick={handleDownVote}>
+            <i className="fa-solid fa-arrow-down"></i>
+          </button>
         </div>
-        {commentsRender}
+        <div className="card-wrapper">
+          <div className="card-content">
+            <h3>{props.title}</h3>
+            <div className="image-container">
+              <img alt="" src={props.url_overridden_by_dest} />
+            </div>
+            <div className="card-footer">
+              <p>{props.author}</p>
+              <p>{moment.unix(props.created_utc).fromNow()}</p>
+              <span className="icon">
+                <button onClick={handleFetchComments}>
+                  <i className="fa-solid fa-comment"></i>
+                  <p className="comments">{props.totalComments}</p>
+                </button>
+              </span>
+            </div>
+          </div>
+          {commentsRender}
+        </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 

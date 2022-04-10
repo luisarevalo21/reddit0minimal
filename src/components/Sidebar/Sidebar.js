@@ -1,13 +1,12 @@
 import React from "react";
 import SideCards from "../Card/SideCards/SideCards";
 import "./Sidebar.css";
-
+import Error from "../Error/Error";
 const Sidebar = props => {
-  const { subreddits, selectedSubreddit } = props;
+  const { subreddits, selectedSubreddit, error, handleError } = props;
 
   // const [redditTopic, setredditTopic] = useState([]);
 
-  // console.log("subrredits", subreddits);
   const handleClick = url => {
     props.handleClick(url);
   };
@@ -23,6 +22,7 @@ const Sidebar = props => {
   if (subreddits) {
     cards = subreddits.map(subreddit => (
       <SideCards
+        key={subreddit.url}
         isLoading={props.isLoading}
         title={subreddit.title}
         avatar={subreddit.avatar}
@@ -31,6 +31,9 @@ const Sidebar = props => {
         selectedSubreddit={selectedSubreddit}
       />
     ));
+  }
+  if (error) {
+    cards = <Error error={error} handleError={handleError} />;
   }
   return (
     <ul className="SideCardContainer">

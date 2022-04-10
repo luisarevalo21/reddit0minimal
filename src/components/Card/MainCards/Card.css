@@ -13,7 +13,6 @@
 .card-wrapper {
   display: flex;
   flex-direction: column;
-  padding: 3%;
   margin: 0 auto;
   width: 100%;
 }
@@ -85,4 +84,14 @@
   margin-left: 3px;
   padding: 0;
   display: inline;
+}
+
+@media (max-width: 600px) {
+  .Card {
+    width: 100%;
+  }
+
+  .card-footer {
+    flex-direction: column;
+  }
 }
