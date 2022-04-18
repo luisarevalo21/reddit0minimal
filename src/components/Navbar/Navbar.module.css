@@ -3,6 +3,7 @@
   width: 100%;
   background-color: #f3f3f3;
   grid-column: 1/4;
+  animation: 3s infinite;
 }
 .navbar-wrapper {
   grid-column: 1/4;
@@ -29,6 +30,10 @@
 
   align-items: center;
   grid-column: 2;
+}
+.search input {
+  width: 250px;
+  height: 25%;
 }
 .search button {
   border: none;

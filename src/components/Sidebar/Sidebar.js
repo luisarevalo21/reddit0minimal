@@ -2,44 +2,46 @@ import React from "react";
 import SideCards from "../Card/SideCards/SideCards";
 import "./Sidebar.css";
 import Error from "../Error/Error";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchSubReddits,
+  allSubReddits,
+  selectedSubReddit,
+} from "../features/subreddit/subRedditSlice.js";
+
 const Sidebar = props => {
-  const { subreddits, selectedSubreddit, error, handleError } = props;
+  const dispatch = useDispatch();
+  const subReddits = useSelector(allSubReddits);
+  const subReddit = useSelector(selectedSubReddit);
 
-  // const [redditTopic, setredditTopic] = useState([]);
+  // const { selectedSubreddit, error, handleError } = props;
 
-  const handleClick = url => {
-    props.handleClick(url);
-  };
-
-  //fetch subreddits https://www.reddit.com/subreddits/.json
-
-  // const data = [
-  //   { title: "Home", avatar: avatar, topic: "" },
-  //   { title: "AskReddit", avatar: avatar, topic: "AskReddit" },
-  // ];
+  useEffect(() => {
+    dispatch(fetchSubReddits());
+  }, [dispatch]);
 
   let cards = "";
-  if (subreddits) {
-    cards = subreddits.map(subreddit => (
+  if (subReddits) {
+    cards = subReddits.map(subreddit => (
       <SideCards
         key={subreddit.url}
         isLoading={props.isLoading}
         title={subreddit.title}
         avatar={subreddit.avatar}
-        handleClick={handleClick}
         url={subreddit.url}
-        selectedSubreddit={selectedSubreddit}
+        selectedSubReddit={subReddit}
+        // selectedSubreddit={selectedSubreddit}
       />
     ));
   }
-  if (error) {
-    cards = <Error error={error} handleError={handleError} />;
-  }
+  // if (error) {
+  //   cards = <Error error={error} handleError={handleError} />;
+  // }
   return (
     <ul className="SideCardContainer">
       <h2>Subreddits</h2>
 
-      {/* {props.isLoading && <Spinner isLoading={props.isLoading} />} */}
       {cards}
     </ul>
   );

@@ -1,71 +1,53 @@
-import React from "react";
-
+import React, { useEffect } from "react";
 import Card from "../Card/MainCards/Card";
 import style from "./Home.module.css";
-
 import Error from "../Error/Error";
-import Spinner from "../Spinner/Spinner";
+
+import { useSelector, useDispatch } from "react-redux";
+import {
+  loadRedditData,
+  selectFilteredPosts,
+  selectSearchTerm,
+  selectHasError,
+} from "../features/Reddit/redditSlice.js";
+
 const Home = props => {
-  const {
-    redditHome,
-    isLoading,
-    fetchComments,
-    comments,
-    isLoadingComments,
-    selectedPermaLink,
-    searchValue,
-    filteredHomeData,
-    error,
-    handleError,
-  } = props;
+  const redditData = useSelector(selectFilteredPosts);
+  const searchTerm = useSelector(selectSearchTerm);
+  const error = useSelector(selectHasError);
+  const dispatch = useDispatch();
 
-  const fetchingComments = permaLink => {
-    fetchComments(permaLink);
-  };
+  useEffect(() => {
+    dispatch(loadRedditData());
+  }, [dispatch]);
 
-  let displayedData = redditHome.map(data => (
-    <Card
-      {...data}
-      key={data.permaLink}
-      fetchComments={fetchingComments}
-      comments={comments}
-      isLoadingComments={isLoadingComments}
-      permaLink={data.permaLink}
-      selectedPermaLink={selectedPermaLink}
-      totalComments={data.totalComments}
-    />
-  ));
+  if (error) {
+    return <Error error={error} />;
+  }
+  let displayedData = null;
 
-  if (filteredHomeData) {
-    displayedData = filteredHomeData.map(data => (
+  if (redditData.error) {
+    displayedData = (
+      <Error error={{ title: `No posts matching ${searchTerm}` }} />
+    );
+  } else if (redditData) {
+    displayedData = redditData.map(data => (
       <Card
-        {...data}
+        author={data.author}
+        title={data.title}
+        ups={data.ups}
+        index={data.index}
         key={data.permaLink}
-        fetchComments={fetchingComments}
-        comments={comments}
-        isLoadingComments={isLoadingComments}
+        created_utc={data["created_utc"]}
+        url_overridden_by_dest={data["url_overridden_by_dest"]}
         permaLink={data.permaLink}
-        selectedPermaLink={selectedPermaLink}
         totalComments={data.totalComments}
+        comments={data.comments}
       />
     ));
   }
 
-  return (
-    <div className={style.container}>
-      {isLoading && <Spinner isLoading={isLoading} />}
-      {displayedData}
-
-      {error ? (
-        <Error
-          filteredHomeData={filteredHomeData}
-          searchValue={searchValue}
-          error={error}
-          handleError={handleError}
-        />
-      ) : null}
-    </div>
-  );
+  return <div className={style.container}>{displayedData}</div>;
 };
 
 export default Home;

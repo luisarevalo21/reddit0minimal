@@ -2,15 +2,22 @@ import React, { useState } from "react";
 import "./Card.css";
 import CommentCardContainer from "../CommentCards/CommentCardContainer";
 import moment from "moment";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchPostsComments,
+  selectSelectedPost,
+  selectIsLoading,
+} from "../../features/Reddit/redditSlice.js";
 import Spinner from "../../Spinner/Spinner";
+
 const Card = props => {
-  const {
-    fetchComments,
-    permaLink,
-    isLoadingComments,
-    comments,
-    selectedPermaLink,
-  } = props;
+  const dispatch = useDispatch();
+  const selectedPost = useSelector(selectSelectedPost);
+  const isLoading = useSelector(selectIsLoading);
+
+  // const isLoading = useSelector(selectIsLoadingComments);
+
+  const { permaLink, index } = props;
 
   let splitedUps = "";
   let formatedUps = props.ups;
@@ -31,19 +38,19 @@ const Card = props => {
   };
 
   const handleFetchComments = () => {
-    fetchComments(permaLink);
+    dispatch(fetchPostsComments({ permaLink, index }));
   };
 
   let commentsRender = null;
 
-  if (isLoadingComments && selectedPermaLink === permaLink) {
-    commentsRender = <Spinner isLoading={isLoadingComments} />;
-  } else if (selectedPermaLink === permaLink) {
-    commentsRender = <CommentCardContainer comments={comments} />;
+  if (isLoading && index === selectedPost) {
+    commentsRender = <Spinner isLoading={isLoading} />;
+  } else if (selectedPost === index) {
+    commentsRender = <CommentCardContainer />;
   }
 
   return (
-    <React.Fragment key={Math.random()}>
+    <React.Fragment>
       <div className="Card">
         <div className="votes">
           <button onClick={handleUpVote} className={upVoteColor}>
@@ -71,6 +78,8 @@ const Card = props => {
               </span>
             </div>
           </div>
+
+          {/* {isLoading && <Spinner isLoading={isLoading} />} */}
           {commentsRender}
         </div>
       </div>

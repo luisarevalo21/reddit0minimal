@@ -1,8 +1,31 @@
 import React from "react";
 import style from "./Navbar.module.css";
+
+import { useDispatch } from "react-redux";
+import { useState } from "react";
+
+import { setSearchTerm } from "../features/Reddit/redditSlice.js";
 const Navbar = props => {
+  const [searchValue, setSearchValue] = useState("");
+
+  const dispatch = useDispatch();
+
+  const handleClick = () => {
+    dispatch(setSearchTerm(searchValue));
+    setSearchValue("");
+    //put it into reddit slice instead
+    // dispatch teh action to search inside of the slice
+    // if (searchValue === "") {
+    //   dispatch(setSearchTerm(searchValue));
+    // }
+    // if (searchValue) {
+    //   dispatch(setSearchTerm(searchValue));
+    // }
+  };
+
   const handleChange = event => {
-    props.handleChange(event.target.value);
+    event.preventDefault();
+    setSearchValue(event.target.value);
   };
 
   return (
@@ -15,18 +38,17 @@ const Navbar = props => {
         </div>
 
         <div className={style.search}>
-          <form onSubmit={props.handleSearch}>
-            <input
-              placeholder="Search"
-              className={style.input}
-              onChange={handleChange}
-              value={props.searchValue}
-            />
-            <button type="submit">
-              <i className="fa-solid fa-magnifying-glass"></i>{" "}
-            </button>
-          </form>
+          <input
+            placeholder="Search"
+            value={searchValue}
+            onChange={handleChange}
+          />
+          <button type="submit" onClick={handleClick}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
         </div>
+
+        {/* <SearchTerm redditHome={props.redditHome} /> */}
       </header>
     </div>
   );
